@@ -2,22 +2,23 @@
 %option never-interactive
 %option nounput
 %option noinput
+/* %option yylineno */
 
 %{
 	#include "lex.h"
-
-	int charcount = 0;
-	int linecount = 0;
+	int linecount = 1;
+	int charcount = 1;
 %}
 
 digit			[0-9]
 alpha			[a-zA-Z]
 quote			["]
 char			[^_A-Za-z0-9]
+identifier		({alpha}({alpha}|{digit})*)
 
 %%
+"\n"		{ charcount = 1; linecount++; }
 [ \t|" "]	{ charcount++;		}
-[ \n]		{ linecount++; 		}
 
 "+"			{ return tADD; 		}
 "-"			{ return tSUB; 		}
@@ -41,7 +42,7 @@ char			[^_A-Za-z0-9]
 "}"			{ return tCRPAR; 	}
 "["			{ return tSLPAR; 	}
 "]"			{ return tSRPAR; 	}
-\|			{ return tSLASH; 	}
+'|'			{ return tSLASH; 	}
 
 ":"			{ return tCOLON; 	}
 ";"			{ return tSEMICOLON;}
@@ -71,29 +72,34 @@ char			[^_A-Za-z0-9]
 "fun"		{ return tFUN; 		}
 "return"	{ return tRETURN; 	}
 
-"#"[_{digit}{alpha}]*		{ return tCID; 	}
-{alpha}[_{digit}{alpha}]*	{ return tID; 	}
-{digit}+"."{digit}+			{ return tRVAL; }
-{digit}+					{ return tIVAL; }
-"false"						{ return tBVAL; }
-"true"						{ return tBVAL; }
-{quote}{char}{quote}		{ return tCVAL; }
-{quote}"\n"{quote}			{ return tCVAL; }
-{quote}"\t"{quote}			{ return tCVAL; }
-	
+<<EOF>>		{return tEOF;}
+
+"false"					{ return tBVAL; }
+"true"					{ return tBVAL; }
+"#"[{digit}{alpha}]*	{ return tCID; 	}
+{identifier}			{ return tID; 	}
+{digit}+"."{digit}+		{ return tRVAL; }
+{digit}+				{ return tIVAL; }
+{quote}{char}{quote}	{ return tCVAL; }
+{quote}'\n'{quote}		{ return tCVAL; }
+{quote}'\t'{quote}		{ return tCVAL; }
+
 %%
 
 TokenRecord * getToken(void){
-	TokenRecord * token = malloc(sizeof(TokenRecord));
+	TokenRecord * token = NULL;
+	token = calloc(1, sizeof(TokenRecord));
 	if (token == NULL)
 		exit(1);
 
-	charcount += strlen(yytext);
+	
+	token->tokenval = yylex();	
 	token->charpos = charcount;
-	token->linepos = linecount;
+	token->linepos = linecount; //yylineno
+	charcount += yyleng;
 	
 	bool b = true;
-	switch (yylex()){
+	switch (token->tokenval){
 		case tIVAL:
 			token->attribute.intval = atoi(yytext);
 			break;

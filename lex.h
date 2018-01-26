@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef enum {
 	tADD,   tSUB,   tMUL,   tDIV,   tARROW, tAND,    tOR,   tNOT,
@@ -11,7 +12,7 @@ typedef enum {
 	tCOMMA, tIF,    tTHEN,  tWHILE, tDO,    tREAD,   tELSE, tFUN,
 	tBEGIN, tEND,   tCASE,  tOF,    tPRINT, tINT,    tBOOL, tCHAR,
 	tREAL,  tVAR,   tDATA,  tSIZE,  tFLOAT, tFLOOR,  tCEIL, tRETURN,
-	tCID,   tID,    tRVAL,  tIVAL, 	tBVAL, 	tCVAL
+	tCID,   tID,    tRVAL,  tIVAL, 	tBVAL, 	tCVAL, tEOF
 } TokenType;
 
 typedef struct {
@@ -29,4 +30,5 @@ typedef struct {
 	
 }TokenRecord;
 
+TokenRecord * getToken(void);
 #endif
