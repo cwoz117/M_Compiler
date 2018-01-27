@@ -31,4 +31,6 @@ typedef struct {
 }TokenRecord;
 
 TokenRecord * getToken(void);
+int multicomment(void);
+int inputpos(char value);
 #endif

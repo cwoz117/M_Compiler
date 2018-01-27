@@ -8,10 +8,10 @@ P_FLAG	= -d
 all: command
 
 command: lex.yy.c
-	$(cc) -std=$(std) -Wall -Werror lex_tester.c lex.yy.c
+	$(cc) -std=$(std) -Wall -Werror lex_tester.c lex.yy.c -o scan
 
 lex.yy.c: m_lex.lex
 	$(lexer) m_lex.lex
 
 clean:
-	rm -f lex.yy.c a.out
+	rm -f lex.yy.c a.out scan

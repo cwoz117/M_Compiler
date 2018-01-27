@@ -1,0 +1,18 @@
+% This is a comment I should suspect
+/* and this is a multiline comment %yo
+   see these lines!
+*/
+
+/* /* delete the leftmost '/' for the other case  */ */
+
+/* /* delete the rightmost '/' for the other case */ */ 
+begin
+    input x;
+    y := 1;
+    while x do
+        begin
+            y :=  y * x;
+            x :=  x - 1;
+         end;
+    write y;
+end

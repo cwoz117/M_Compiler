@@ -1,13 +1,15 @@
 %option noyywrap
 %option never-interactive
 %option nounput
-%option noinput
 /* %option yylineno */
 
 %{
 	#include "lex.h"
+
+
 	int linecount = 1;
 	int charcount = 1;
+	
 %}
 
 digit			[0-9]
@@ -17,6 +19,9 @@ char			[^_A-Za-z0-9]
 identifier		({alpha}({alpha}|{digit})*)
 
 %%
+([%](.)*)	{}
+("/*")		{ int i = multicomment(); 
+			  if (i) printf("Hit EOF in a comment\n");	}
 "\n"		{ charcount = 1; linecount++; }
 [ \t|" "]	{ charcount++;		}
 
@@ -115,6 +120,77 @@ TokenRecord * getToken(void){
 			token->attribute.stringval = yytext;
 			break;
 	}
-
 	return  token;
 }
+
+int inputpos(char value){
+	switch (value){
+		case '*': return 0;
+		case '/': return 1;
+		case '\n':
+			linecount++; 
+			return 2;
+		case '%': return 3;
+		case EOF: return -1;
+		default: return 4;
+	}
+}
+
+int multicomment(void){
+	int transition[6][5] = {
+		{1,3,0,2,0},
+		{1,5,0,2,0},
+		{2,2,0,2,2},
+		{4,3,0,2,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+	};
+	int error = 0;
+	int accept = 5;
+	int state = 0;
+
+	int ch = inputpos(input());
+	while ((state != accept) && !error){
+		if (ch == -1){
+			error = 1;
+		}else{
+			if (state == 4){
+				error = multicomment();
+				state = 0;
+			}
+			int newstate = transition[state][ch];
+			if (newstate == state){
+				ch = inputpos(input());
+			} else if (state == 4){
+				error = multicomment();
+				state = 0;
+				ch = inputpos(input());
+			} else {
+				state = newstate;
+				
+			}
+			if (ch == EOF)
+				error = 1;
+		}
+	}
+	return error;
+}
+
+/*
+							   '*'  '%' '\n'  '/'  other
+	base_comment			0|  1    2    0    0     0
+	maybe end of comment	1|  1    0    0    3     0
+	one line comment		2|  2    2    0    2     2
+	accept					3|  0    0    0    0     0     
+
+	state = 1
+	ch = next input character
+	while not accept-state and not error do
+		newstate = T[state, ch]
+		if state advances
+			ch = next input char
+		state = newstate
+	end while
+	if accept and not error
+		accept
+*/
