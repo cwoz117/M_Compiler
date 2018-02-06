@@ -1,0 +1,9 @@
+The script 'submissible.sh' contains all required information
+to run and build the code. If required, give it execution
+permission:
+
+	user:~$ chmod +x submissible.sh
+
+Then run the script to build the code, and execute all tests:
+
+	user:~$ ./submissible.sh
