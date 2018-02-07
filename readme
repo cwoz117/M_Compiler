@@ -7,3 +7,8 @@ permission:
 Then run the script to build the code, and execute all tests:
 
 	user:~$ ./submissible.sh
+
+
+If you want to run this against any other file, it pulls from stdin:
+
+	user:~$ cat different/test/file | ./scan
